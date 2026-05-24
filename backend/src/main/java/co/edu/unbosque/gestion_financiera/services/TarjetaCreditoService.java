@@ -101,4 +101,25 @@ public class TarjetaCreditoService {
         tarjeta.setEstado("INACTIVO");
         return tarjetaRepository.save(tarjeta);
     }
+
+    public TarjetaCredito modificarCupoTotal(Integer idTarjeta, Double nuevoCupoTotal) {
+        if (nuevoCupoTotal == null || nuevoCupoTotal <= 0) {
+            throw new CupoTotalInvalidoException(
+                    "El cupo total debe ser un valor mayor a cero");
+        }
+
+        TarjetaCredito tarjeta = tarjetaRepository.findById(idTarjeta)
+                .orElseThrow(() -> new TarjetaNoExisteException(
+                        "No existe una tarjeta con ese id"));
+
+        if (nuevoCupoTotal < tarjeta.getCupoDisponible()) {
+            throw new CupoTotalInvalidoException(
+                    "El cupo total no puede ser menor al cupo disponible");
+        }
+
+        Double cupoUtilizado = nuevoCupoTotal - tarjeta.getCupoDisponible();
+        tarjeta.setCupoTotal(nuevoCupoTotal);
+        tarjeta.setCupoUtilizado(cupoUtilizado);
+        return tarjetaRepository.save(tarjeta);
+    }
 }

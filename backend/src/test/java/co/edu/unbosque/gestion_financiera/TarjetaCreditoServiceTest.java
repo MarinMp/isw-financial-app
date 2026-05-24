@@ -1,9 +1,6 @@
 package co.edu.unbosque.gestion_financiera;
 
-import co.edu.unbosque.gestion_financiera.exceptions.FechaVencimientoInvalidaException;
-import co.edu.unbosque.gestion_financiera.exceptions.NumeroTarjetaDuplicadoException;
-import co.edu.unbosque.gestion_financiera.exceptions.NumeroTarjetaInvalidoException;
-import co.edu.unbosque.gestion_financiera.exceptions.TarjetaInactivaException;
+import co.edu.unbosque.gestion_financiera.exceptions.*;
 import co.edu.unbosque.gestion_financiera.model.dtos.TarjetaCreditoDTO;
 import co.edu.unbosque.gestion_financiera.model.entities.Cliente;
 import co.edu.unbosque.gestion_financiera.model.entities.TarjetaCredito;
@@ -117,6 +114,40 @@ public class TarjetaCreditoServiceTest {
 
         assertThrows(TarjetaInactivaException.class, () -> {
             tarjetaService.eliminarTarjeta(1);
+        });
+    }
+
+    @Test
+    public void testModificarCupoTotalExitoso() {
+        TarjetaCredito tarjeta = new TarjetaCredito();
+        tarjeta.setCupoTotal(5000000.0);
+        tarjeta.setCupoDisponible(3000000.0);
+        tarjeta.setCupoUtilizado(2000000.0);
+
+        when(tarjetaRepository.findById(any())).thenReturn(Optional.of(tarjeta));
+        when(tarjetaRepository.save(any())).thenReturn(tarjeta);
+
+        TarjetaCredito resultado = tarjetaService.modificarCupoTotal(1, 8000000.0);
+        assertEquals(8000000.0, resultado.getCupoTotal());
+    }
+
+    @Test
+    public void testModificarCupoTotalInvalido() {
+        assertThrows(CupoTotalInvalidoException.class, () -> {
+            tarjetaService.modificarCupoTotal(1, -1000.0);
+        });
+    }
+
+    @Test
+    public void testModificarCupoTotalMenorAlDisponible() {
+        TarjetaCredito tarjeta = new TarjetaCredito();
+        tarjeta.setCupoTotal(5000000.0);
+        tarjeta.setCupoDisponible(3000000.0);
+
+        when(tarjetaRepository.findById(any())).thenReturn(Optional.of(tarjeta));
+
+        assertThrows(CupoTotalInvalidoException.class, () -> {
+            tarjetaService.modificarCupoTotal(1, 1000000.0);
         });
     }
 }
