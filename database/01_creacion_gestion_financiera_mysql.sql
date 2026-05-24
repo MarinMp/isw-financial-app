@@ -1,4 +1,5 @@
-USE universidad;
+CREATE DATABASE IF NOT EXISTS gestion_financiera;
+USE gestion_financiera;
 
 CREATE TABLE cliente_tarjeta (
     id_cliente INT AUTO_INCREMENT PRIMARY KEY,
