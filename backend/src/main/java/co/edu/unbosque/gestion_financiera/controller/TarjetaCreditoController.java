@@ -51,4 +51,18 @@ public class TarjetaCreditoController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+
+    @PutMapping("/{idTarjeta}/cupo")
+    public ResponseEntity<?> modificarCupoTotal(
+            @PathVariable Integer idTarjeta,
+            @RequestParam Double nuevoCupoTotal) {
+        try {
+            TarjetaCredito tarjeta = tarjetaService.modificarCupoTotal(idTarjeta, nuevoCupoTotal);
+            return ResponseEntity.ok(tarjeta);
+        } catch (CupoTotalInvalidoException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (TarjetaNoExisteException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
 }
