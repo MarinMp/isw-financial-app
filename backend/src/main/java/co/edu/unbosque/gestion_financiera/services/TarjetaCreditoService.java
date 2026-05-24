@@ -1,9 +1,6 @@
 package co.edu.unbosque.gestion_financiera.services;
 
-import co.edu.unbosque.gestion_financiera.exceptions.ClienteNoExisteException;
-import co.edu.unbosque.gestion_financiera.exceptions.FechaVencimientoInvalidaException;
-import co.edu.unbosque.gestion_financiera.exceptions.NumeroTarjetaDuplicadoException;
-import co.edu.unbosque.gestion_financiera.exceptions.NumeroTarjetaInvalidoException;
+import co.edu.unbosque.gestion_financiera.exceptions.*;
 import co.edu.unbosque.gestion_financiera.model.dtos.TarjetaCreditoDTO;
 import co.edu.unbosque.gestion_financiera.model.entities.Cliente;
 import co.edu.unbosque.gestion_financiera.model.entities.TarjetaCredito;
@@ -89,5 +86,19 @@ public class TarjetaCreditoService {
         }
         throw new NumeroTarjetaInvalidoException(
                 "El numero de tarjeta no corresponde a ninguna franquicia valida");
+    }
+
+    public TarjetaCredito eliminarTarjeta(Integer idTarjeta) {
+        TarjetaCredito tarjeta = tarjetaRepository.findById(idTarjeta)
+                .orElseThrow(() -> new ClienteNoExisteException(
+                        "No existe una tarjeta con ese id"));
+
+        if (tarjeta.getEstado().equals("INACTIVO")) {
+            throw new TarjetaInactivaException(
+                    "La tarjeta ya se encuentra inactiva");
+        }
+
+        tarjeta.setEstado("INACTIVO");
+        return tarjetaRepository.save(tarjeta);
     }
 }

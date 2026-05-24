@@ -3,6 +3,7 @@ package co.edu.unbosque.gestion_financiera;
 import co.edu.unbosque.gestion_financiera.exceptions.FechaVencimientoInvalidaException;
 import co.edu.unbosque.gestion_financiera.exceptions.NumeroTarjetaDuplicadoException;
 import co.edu.unbosque.gestion_financiera.exceptions.NumeroTarjetaInvalidoException;
+import co.edu.unbosque.gestion_financiera.exceptions.TarjetaInactivaException;
 import co.edu.unbosque.gestion_financiera.model.dtos.TarjetaCreditoDTO;
 import co.edu.unbosque.gestion_financiera.model.entities.Cliente;
 import co.edu.unbosque.gestion_financiera.model.entities.TarjetaCredito;
@@ -92,6 +93,30 @@ public class TarjetaCreditoServiceTest {
 
         assertThrows(NumeroTarjetaDuplicadoException.class, () -> {
             tarjetaService.registrarTarjeta(dto);
+        });
+    }
+
+    @Test
+    public void testEliminarTarjetaExitosa() {
+        TarjetaCredito tarjeta = new TarjetaCredito();
+        tarjeta.setEstado("ACTIVO");
+
+        when(tarjetaRepository.findById(any())).thenReturn(Optional.of(tarjeta));
+        when(tarjetaRepository.save(any())).thenReturn(tarjeta);
+
+        TarjetaCredito resultado = tarjetaService.eliminarTarjeta(1);
+        assertEquals("INACTIVO", resultado.getEstado());
+    }
+
+    @Test
+    public void testEliminarTarjetaYaInactiva() {
+        TarjetaCredito tarjeta = new TarjetaCredito();
+        tarjeta.setEstado("INACTIVO");
+
+        when(tarjetaRepository.findById(any())).thenReturn(Optional.of(tarjeta));
+
+        assertThrows(TarjetaInactivaException.class, () -> {
+            tarjetaService.eliminarTarjeta(1);
         });
     }
 }
