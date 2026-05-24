@@ -57,7 +57,7 @@ public class ClienteServiceTest {
     @Test
     public void testRegistrarClienteDuplicado() {
         ClienteDTO dto = new ClienteDTO();
-        dto.setNumeroIdentificacion("1234567890");
+        dto.setNumeroIdentificacion("1234567898");
         dto.setCorreoElectronico("test@gmail.com");
         dto.setNombreCompleto("Test Cliente");
 
