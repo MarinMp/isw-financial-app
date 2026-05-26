@@ -8,17 +8,14 @@
     <title>Gestión Financiera</title>
 </h:head>
 <h:body>
-
-    <h2 style="margin-bottom: 10px; text-align: center;">Gestión de Clientes</h2>
-
+    <h2 style="margin-bottom: 10px; text-align: center;">Gestión Financiera de Clientes</h2>
     <h:form id="form">
         <p:growl id="growl" showDetail="true"/>
-
+        <h3>Clientes</h3>
         <p:commandButton value="Nuevo Cliente" icon="pi pi-plus"
                          oncomplete="PF('dialogNuevoCliente').show()"
                          update=":form:growl"
                          style="margin-bottom: 10px;"/>
-
         <p:dataTable id="tablaClientes" var="cliente"
                      value="#{clienteBean.clientes}"
                      rowKey="#{cliente.idCliente}"
@@ -36,8 +33,56 @@
                 <h:outputText value="#{cliente.correoElectronico}"/>
             </p:column>
         </p:dataTable>
+        <h3 style="margin-top: 20px;">Tarjetas de Crédito</h3>
+        <p:commandButton value="Nueva Tarjeta" icon="pi pi-plus"
+                         oncomplete="PF('dialogNuevaTarjeta').show()"
+                         update=":form:growl"
+                         style="margin-bottom: 10px;"/>
+        <p:dataTable id="tablaTarjetas" var="tarjeta"
+                     value="#{tarjetaBean.tarjetas}"
+                     rowKey="#{tarjeta.idTarjeta}"
+                     emptyMessage="No hay tarjetas registradas">
+            <p:column headerText="ID">
+                <h:outputText value="#{tarjeta.idTarjeta}"/>
+            </p:column>
+            <p:column headerText="Número Tarjeta">
+                <h:outputText value="#{tarjeta.numeroTarjeta}"/>
+            </p:column>
+            <p:column headerText="Fecha Vencimiento">
+                <h:outputText value="#{tarjeta.fechaVencimiento}"/>
+            </p:column>
+            <p:column headerText="Franquicia">
+                <h:outputText value="#{tarjeta.franquicia}"/>
+            </p:column>
+            <p:column headerText="Estado">
+                <h:outputText value="#{tarjeta.estado}"/>
+            </p:column>
+            <p:column headerText="Cupo Total">
+                <h:outputText value="#{tarjeta.cupoTotal}"/>
+            </p:column>
+            <p:column headerText="Cupo Disponible">
+                <h:outputText value="#{tarjeta.cupoDisponible}"/>
+            </p:column>
+            <p:column headerText="Cupo Utilizado">
+                <h:outputText value="#{tarjeta.cupoUtilizado}"/>
+            </p:column>
+            <p:column headerText="Cliente">
+                <h:outputText value="#{tarjeta.cliente.nombreCompleto}"/>
+            </p:column>
+            <p:column headerText="Acción">
+                <p:commandButton icon="pi pi-pencil"
+                                 styleClass="ui-button-warning"
+                                 actionListener="#{tarjetaBean.seleccionarTarjeta(tarjeta)}"
+                                 oncomplete="PF('dialogModificar').show()"
+                                 update=":formModificar :form:growl"
+                                 process="@this"/>
+                <p:commandButton icon="pi pi-trash"
+                                 styleClass="ui-button-danger"
+                                 actionListener="#{tarjetaBean.eliminarTarjeta(tarjeta.idTarjeta)}"
+                                 update=":form:tablaTarjetas :form:growl"/>
+            </p:column>
+        </p:dataTable>
     </h:form>
-
     <p:dialog header="Nuevo Cliente" widgetVar="dialogNuevoCliente"
               modal="true" showEffect="fade" hideEffect="fade">
         <h:form id="formNuevoCliente">
@@ -47,26 +92,102 @@
                              value="#{clienteBean.nuevoCliente.numeroIdentificacion}"
                              required="true"
                              requiredMessage="El número de identificación es obligatorio"/>
-
                 <p:outputLabel for="nombre" value="Nombre Completo:"/>
                 <p:inputText id="nombre"
                              value="#{clienteBean.nuevoCliente.nombreCompleto}"
                              required="true"
                              requiredMessage="El nombre completo es obligatorio"/>
-
                 <p:outputLabel for="correo" value="Correo Electrónico:"/>
                 <p:inputText id="correo"
                              value="#{clienteBean.nuevoCliente.correoElectronico}"
                              required="true"
                              requiredMessage="El correo electrónico es obligatorio"/>
             </p:panelGrid>
-
             <p:commandButton value="Guardar"
                              action="#{clienteBean.registrarCliente}"
-                             update=":form:tablaClientes :form:growl :formNuevoCliente"
-                             oncomplete="if(args &amp;&amp; !args.validationFailed &amp;&amp; #{clienteBean.registroExitoso}) PF('dialogNuevoCliente').hide()"/>
+                             update=":form:tablaClientes :form:growl"
+                             oncomplete="if(!args.validationFailed &amp;&amp; #{clienteBean.registroExitoso}) PF('dialogNuevoCliente').hide()"/>
             <p:commandButton value="Cancelar"
                              onclick="PF('dialogNuevoCliente').hide()"
+                             styleClass="ui-button-secondary"
+                             type="button"/>
+        </h:form>
+    </p:dialog>
+    <p:dialog header="Nueva Tarjeta" widgetVar="dialogNuevaTarjeta"
+              modal="true" showEffect="fade" hideEffect="fade">
+        <h:form id="formNuevaTarjeta">
+            <p:panelGrid columns="2">
+                <p:outputLabel for="numeroTarjeta" value="Número de Tarjeta:"/>
+                <p:inputText id="numeroTarjeta"
+                             value="#{tarjetaBean.nuevaTarjeta.numeroTarjeta}"
+                             required="true"
+                             requiredMessage="El número de tarjeta es obligatorio"/>
+                <p:outputLabel for="fechaVencimiento" value="Fecha Vencimiento (MM/YYYY):"/>
+                <p:inputMask id="fechaVencimiento"
+                             value="#{tarjetaBean.nuevaTarjeta.fechaVencimiento}"
+                             mask="99/9999"
+                             required="true"
+                             requiredMessage="La fecha de vencimiento es obligatoria"/>
+                <p:outputLabel for="cupoTotal" value="Cupo Total:"/>
+                <p:inputText id="cupoTotal"
+                             value="#{tarjetaBean.nuevaTarjeta.cupoTotal}"
+                             required="true"
+                             requiredMessage="El cupo total es obligatorio"/>
+                <p:outputLabel for="cupoDisponible" value="Cupo Disponible:"/>
+                <p:inputText id="cupoDisponible"
+                             value="#{tarjetaBean.nuevaTarjeta.cupoDisponible}"
+                             required="true"
+                             requiredMessage="El cupo disponible es obligatorio"/>
+                <p:outputLabel for="idCliente" value="ID Cliente:"/>
+                <p:inputText id="idCliente"
+                             value="#{tarjetaBean.nuevaTarjeta.idCliente}"
+                             required="true"
+                             requiredMessage="El ID del cliente es obligatorio"/>
+            </p:panelGrid>
+            <p:commandButton value="Guardar"
+                             action="#{tarjetaBean.registrarTarjeta}"
+                             update=":form:tablaTarjetas :form:growl :formNuevaTarjeta"
+                             oncomplete="if(!args.validationFailed &amp;&amp; #{tarjetaBean.registroExitoso}) PF('dialogNuevaTarjeta').hide()"/>
+            <p:commandButton value="Cancelar"
+                             onclick="PF('dialogNuevaTarjeta').hide()"
+                             styleClass="ui-button-secondary"
+                             type="button"/>
+        </h:form>
+    </p:dialog>
+    <p:dialog header="Modificar Cupo Total" widgetVar="dialogModificar"
+              modal="true" showEffect="fade" hideEffect="fade">
+        <h:form id="formModificar">
+            <p:panelGrid columns="2">
+                <p:outputLabel value="Número de Tarjeta:"/>
+                <p:inputText value="#{tarjetaBean.tarjetaSeleccionada.numeroTarjeta}"
+                             disabled="true"/>
+                <p:outputLabel value="Fecha Vencimiento:"/>
+                <p:inputText value="#{tarjetaBean.tarjetaSeleccionada.fechaVencimiento}"
+                             disabled="true"/>
+                <p:outputLabel value="Franquicia:"/>
+                <p:inputText value="#{tarjetaBean.tarjetaSeleccionada.franquicia}"
+                             disabled="true"/>
+                <p:outputLabel value="Estado:"/>
+                <p:inputText value="#{tarjetaBean.tarjetaSeleccionada.estado}"
+                             disabled="true"/>
+                <p:outputLabel value="Cupo Disponible:"/>
+                <p:inputText value="#{tarjetaBean.tarjetaSeleccionada.cupoDisponible}"
+                             disabled="true"/>
+                <p:outputLabel value="Cupo Utilizado:"/>
+                <p:inputText value="#{tarjetaBean.tarjetaSeleccionada.cupoUtilizado}"
+                             disabled="true"/>
+                <p:outputLabel for="nuevoCupo" value="Nuevo Cupo Total:"/>
+                <p:inputText id="nuevoCupo"
+                             value="#{tarjetaBean.tarjetaSeleccionada.cupoTotal}"
+                             required="true"
+                             requiredMessage="El nuevo cupo total es obligatorio"/>
+            </p:panelGrid>
+            <p:commandButton value="Guardar"
+                             action="#{tarjetaBean.modificarCupoTotal}"
+                             update=":form:tablaTarjetas :form:growl :formModificar"
+                             oncomplete="if(!args.validationFailed) PF('dialogModificar').hide()"/>
+            <p:commandButton value="Cancelar"
+                             onclick="PF('dialogModificar').hide()"
                              styleClass="ui-button-secondary"
                              type="button"/>
         </h:form>
